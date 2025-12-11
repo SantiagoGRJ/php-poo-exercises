@@ -43,7 +43,7 @@ class Store {
     private array $products = [];
 
     public function addProduct(Product $product){
-        $this->products[] = $product;
+        array_push($this->products,$product);
     }
 
     public function searchProductByName($name){

@@ -115,7 +115,7 @@ class PetStore {
     private array $pets = [];
     
     public function addPet(Pet $pet){
-       $this->pets[]=$pet;
+      array_push($this->pets,$pet);
     }
 
     public function listPets(){
