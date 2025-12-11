@@ -1,6 +1,6 @@
 <?php
 
-class Product {
+class Productt {
 
     private string $name;
     private $price;
@@ -32,7 +32,7 @@ class Product {
         $this->stock-=$quantity;
     }
 }
-$product=new Product;
+$product=new Productt;
 $product->setName("Phone");
 $product->setPrice(12);
 $product->setStock(21);
