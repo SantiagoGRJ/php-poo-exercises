@@ -56,6 +56,7 @@ class Classroom {
         // count student / attribute grade
         $total=0;
         $count = count($this->students);
+        if($count===0) return 0;
         foreach($this->students as $student){
                 $total+= $student->getGrade();
         }
