@@ -93,7 +93,7 @@ class Library {
     public function addBook(Book $book){
         foreach($this->books as $b){
             if($b->getTitle() === $book->getTitle() && $b->getAuthor() === $book->getAuthor() ){
-                return;
+                return "You cannot add books repeat";
             }
         }
         $this->books[] = $book; 
@@ -109,13 +109,13 @@ class Library {
     }
 
     public function borrowBook(string $title){
-        $findByTitle=$this->findByTitle($title);
+        $book=$this->findByTitle($title);
 
-        if($findByTitle && $findByTitle->getIsBorrowed()){
-            $findByTitle->borrow();
-            return $findByTitle->getBorrowTime();
+        if($book && !$book->getIsBorrowed()){
+            $book->borrow();
+            return $book->getBorrowTime();
         }else {
-            echo "Book not found or is borrow";
+            return "Book not found or is borrow";
         }
     }
 
@@ -127,7 +127,7 @@ class Library {
     public function listAvailable(){
         $listbook = [];
           foreach($this->books as $book){
-            if($book->getIsBorrowed()){
+            if(!$book->getIsBorrowed()){
                array_push($listbook, $book);
             }
         }
@@ -135,4 +135,42 @@ class Library {
     }
 
 
+}
+$library = new Library();
+
+$library->addBook(new Novel("Clean Code", "Robert C. Martin", 2008));
+$library->addBook(new TextBook("Math Basics", "John Smith", 2015));
+$library->addBook(new Magazine("National Geographic", "NatGeo", 2023));
+
+echo "Available books:\n";
+foreach ($library->listAvailable() as $book) {
+    echo $book->getTitle() . "\n";
+}
+
+echo "\nBorrow Clean Code:\n";
+$days = $library->borrowBook("Clean Code");
+if ($days !== null) {
+    echo "Borrow time: $days days\n";
+}
+
+echo "\nBorrow Math Basics:\n";
+$days = $library->borrowBook("Math Basics");
+if ($days !== null) {
+    echo "Borrow time: $days days\n";
+}
+
+echo "\nBorrow Clean Code again:\n";
+$library->borrowBook("Clean Code");
+
+echo "\nAvailable books after borrow:\n";
+foreach ($library->listAvailable() as $book) {
+    echo $book->getTitle() . "\n";
+}
+
+echo "\nReturn Clean Code:\n";
+$library->returnBook("Clean Code");
+
+echo "\nAvailable books after return:\n";
+foreach ($library->listAvailable() as $book) {
+    echo $book->getTitle() . "\n";
 }
