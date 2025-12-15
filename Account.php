@@ -3,9 +3,9 @@
 class Account {
 
     public function __construct(
-        private $accountNumber,
-        private $owner,
-        private $balance
+        protected $accountNumber,
+        protected $owner,
+        protected $balance
         ){}
     
     public function getAccountNumber(){
@@ -40,15 +40,141 @@ class Account {
     }
 
     public function withDraw(float $amount){
-        if($amount>$this->balance){
+        $this->validateWithDraw($amount);
+        $this->balance-=$amount;
+    }
+
+    protected function validateWithDraw(float $amount){
+       
+         if ($amount > $this->balance) {
             throw new RuntimeException("Verify your amount to withdraw");
         }
-        $this->balance-=$amount;
+    }
+
+    protected function validateAmountWithDraw(float $amount){
+         if($amount <= 0){
+            throw new InvalidArgumentException("Amount must be greater than 0");
+        }
     }
 
     public function getAccountType(){
         return "Account";
     }
 
+    public function __toString()
+    {
+        return "Account: ".$this->accountNumber." owner: ".$this->owner." Type: ".$this->getAccountType()." balance: ".$this->balance;
+    }
+}
+
+class SavingAccount extends Account {
+
+
+    public function getAccountType()
+    {
+        return "Savings";
+    }
+
+    public function withDraw(float $amount){
+        $this->validateAmountWithDraw($amount);
+        $this->validateWithDraw($amount);
+        $total= $this->balance - $amount;
+        if($total < 100){
+            throw new InvalidArgumentException("You can not do a withdraw, balance would be the 100 money");
+        }
+        $this->balance-=$amount;
+    }
+}
+
+class CheckingAccount extends Account {
+
+    public function getAccountNumber()
+    {
+        return "Checking";
+
+    }
+
+    public function withDraw(float $amount)
+    {
+        $this->validateAmountWithDraw($amount);
+        $total = $this->balance - $amount;
+
+        if($total <= -500 ){
+            $this->balance -= $amount;
+        }
+       
+    }
+}
+
+class Bank {
+
+    private array $accounts = [];
+
+    public function addAccount(Account $account) {
+             
+        foreach($this->accounts as $accountf){
+            if($accountf->getAccountNumber() === $account->getAccountNumber()){
+                throw new InvalidArgumentException("AccountNumber is taken, try another different");
+            }
+        }
+        $this->accounts[]=$account;
+    }
+
+    public function findAccount(string $accountNumber){
+        
+        foreach($this->accounts as $accountf){
+            if($accountf->getAccountNumber() === $accountNumber){
+                return $accountf;
+            }
+
+        }
+        return null;
+    }
+
+    public function deposit(string $accountNumber, float $amount){
+        $this->validateAmount($amount);
+        $account=$this->findAccount($accountNumber);
+
+
+        if(!$account){
+            throw new RuntimeException("Account doesn´t exist or not found");
+        }
+        $account->deposit($amount);
+
+    }
+
+    public function withDraw(string $accountNumber, float $amount){
+        $this->validateAmount($amount);
+        $account=$this->findAccount($accountNumber);
+
+         if(!$account){
+            throw new RuntimeException("Account doesn´t exist or not found");
+        }
+        $account->withDraw($amount);
+
+
+
+    }
+
+    private function validateAmount(float $amount){
+        if($amount <= 0){
+            throw new InvalidArgumentException("Amount must be greater than o equal to 0");
+        }
+    }
+
+    public function listAccounts(){
+         $show = "";
+
+    foreach ($this->accounts as $account) {
+        $show .= $account . PHP_EOL;
+    }
+
+    return $show;
+    }
 
 }
+$bank = new Bank;
+$bank->addAccount(new Account("5467312893","santi",100));
+$bank->addAccount(new SavingAccount("8192743675","javi",200));
+$bank->addAccount(new CheckingAccount("7832954372","gomez",300));
+var_dump($bank->listAccounts());
