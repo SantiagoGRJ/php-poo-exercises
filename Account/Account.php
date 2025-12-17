@@ -5,7 +5,7 @@ class Account {
     public function __construct(
         protected $accountNumber,
         protected $owner,
-        protected $balance
+        private $balance
         ){}
     
     public function getAccountNumber(){
@@ -28,7 +28,7 @@ class Account {
         return $this->balance;
     }
 
-    public function setBalance($balance){
+    protected function setBalance($balance){
         $this->balance=$balance;
     }
 
@@ -78,11 +78,11 @@ class SavingAccount extends Account {
     public function withDraw(float $amount){
         $this->validateAmountWithDraw($amount);
         $this->validateWithDraw($amount);
-        $total= $this->balance - $amount;
+        $total= $this->getBalance() - $amount;
         if($total < 100){
             throw new InvalidArgumentException("You can not do a withdraw, balance would be the 100 money");
         }
-        $this->balance=$total;
+        $this->setBalance($total);
     }
 }
 
@@ -97,12 +97,12 @@ class CheckingAccount extends Account {
     public function withDraw(float $amount)
     {
         $this->validateAmountWithDraw($amount);
-        $total = $this->balance - $amount;
+        $total = $this->getBalance() - $amount;
 
         if($total < - 500 ){
             throw new Exception("Overdraft limit exceeded");
         }
-        $this->balance = $total;
+        $this->setBalance($total);
        
     }
 }
