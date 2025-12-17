@@ -82,13 +82,13 @@ class SavingAccount extends Account {
         if($total < 100){
             throw new InvalidArgumentException("You can not do a withdraw, balance would be the 100 money");
         }
-        $this->balance-=$amount;
+        $this->balance=$total;
     }
 }
 
 class CheckingAccount extends Account {
 
-    public function getAccountNumber()
+    public function getAccountType()
     {
         return "Checking";
 
@@ -99,9 +99,10 @@ class CheckingAccount extends Account {
         $this->validateAmountWithDraw($amount);
         $total = $this->balance - $amount;
 
-        if($total <= -500 ){
-            $this->balance -= $amount;
+        if($total < - 500 ){
+            throw new Exception("Overdraft limit exceeded");
         }
+        $this->balance = $total;
        
     }
 }
@@ -123,7 +124,7 @@ class Bank {
     public function findAccount(string $accountNumber){
         
         foreach($this->accounts as $accountf){
-            if($accountf->getAccountNumber() === $accountNumber){
+            if($accountf->getAccountNumber() == $accountNumber){
                 return $accountf;
             }
 
@@ -177,4 +178,13 @@ $bank = new Bank;
 $bank->addAccount(new Account("5467312893","santi",100));
 $bank->addAccount(new SavingAccount("8192743675","javi",200));
 $bank->addAccount(new CheckingAccount("7832954372","gomez",300));
+var_dump($bank->listAccounts());
+$bank->deposit("8192743675",100);
+var_dump($bank->listAccounts());
+$bank->withDraw("8192743675",201);
+var_dump($bank->listAccounts());
+$bank->deposit("7832954372",240);
+var_dump($bank->listAccounts());
+$bank->withDraw("7832954372",1040);
+
 var_dump($bank->listAccounts());
