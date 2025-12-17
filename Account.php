@@ -163,7 +163,7 @@ class Bank {
     }
 
     public function listAccounts(){
-         $show = "";
+         $show = "".PHP_EOL;
 
     foreach ($this->accounts as $account) {
         $show .= $account . PHP_EOL;
