@@ -5,7 +5,9 @@ class Employee {
     public function __construct(
         protected int $id,
         protected string $name,
-        private float $baseSalary) {}
+        protected float $baseSalary) {
+            $this->calculateSalary();
+        }
     
     public function getId(){
         return $this->id;
@@ -32,18 +34,18 @@ class Employee {
     }
 
     public function calculateSalary() : float {
-        return 15;
+        return $this->baseSalary;
     }
 
     protected function validateSalary() {
-        if($this->baseSalary>=0){
+        if($this->baseSalary<=0){
             throw new InvalidArgumentException("Base Salary must be greather than 0");
         }
     }
 
     public function __toString() : string
     {
-        return "Employee User with ID: ".$this->getId()." and with ".$this->getName()." have a Salary the ".$this->getBaseSalary();
+        return "Employee User with ID: ".$this->getId()." and with Name ".$this->getName()." have a Salary the ".$this->calculateSalary();
     }
 }
 
@@ -58,12 +60,12 @@ class FullTimeEmployee extends Employee {
 
 class PartTimeEmployee extends Employee {
 
-    public $hoursWorked;
+    protected $hoursWorked;
 
     public function __construct(int $id, string $name, float $baseSalary, int $hoursWorked)
     {
-        return parent::__construct($id, $name, $baseSalary);
         $this->hoursWorked=$hoursWorked;
+         parent::__construct($id, $name, $baseSalary);
     }
 
     public function getHoursWorked(){
@@ -82,12 +84,12 @@ class PartTimeEmployee extends Employee {
 
 class Freelancer extends Employee {
 
-    public int $projectsCompleted;
+    protected int $projectsCompleted;
 
     public function __construct(int $id, string $name, float $baseSalary,int $projectsCompleted)
     {
-        return parent::__construct($id, $name, $baseSalary);
         $this->projectsCompleted=$projectsCompleted;
+         parent::__construct($id, $name, $baseSalary);
     }
 
     public function getProjectsCompleted(){
@@ -110,11 +112,53 @@ class Payroll {
     private array $employees = [];
 
     public function addEmployee(Employee $employee){
+        $this->validateRepeatEmployee($employee->getId());
+
+        $this->employees[]=$employee;
 
     }
-    public function validate(int $id){
-        
+
+    public function searchEmployeeById(int $id){
+         foreach($this->employees as $employee){
+            if($employee->getId() === $id){
+                return $employee;
+            }
+        }
+        return null;
     }
 
+    public function calculateTotalPayroll(){
+         $payroll=0;
+         foreach($this->employees as $employee){
+            $payroll+=$employee->calculateSalary();
+        }
+        return $payroll;
+    }
 
+    public function listEmployees(){
+        $text="\n";
+        foreach($this->employees as $employee){
+            $text.=$employee."\n";
+        }
+        return $text;
+    }
+
+    private function validateRepeatEmployee(int $id){
+        foreach($this->employees as $employee){
+            if($employee->getId() === $id){
+                throw new InvalidArgumentException("Id is taken, try another different");
+            }
+        }
+    }
 } 
+$payroll=new Payroll;
+$payroll->addEmployee(new FullTimeEmployee(1,"Santi",21));
+$payroll->addEmployee(new PartTimeEmployee(2,"javi",32.50,3));
+$payroll->addEmployee(new Freelancer(3,"gomez",12.50,4));
+
+for ($i = 1; $i <= 3; $i++) {
+    $employee = $payroll->searchEmployeeById($i);
+    echo $employee->calculateSalary() . "\n";
+}
+var_dump($payroll->listEmployees());
+echo "Total salary: ".$payroll->calculateTotalPayroll()." \n";
