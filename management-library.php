@@ -78,19 +78,17 @@ class Member {
     }
 
     public function removeLoan(){
-        if($this->activeLoans>0){
-
-            $this->activeLoans--;
+        if(!$this->activeLoans>0){
+            throw new RuntimeException("There is not Loan active");
         }
         
+        $this->activeLoans--;
     }
 
 
 }
 
 class Loan {
-
-   
 
     public function __construct(
        private int $id,
@@ -126,5 +124,53 @@ class Loan {
 
     public function close() {
         return $this->endDate = new DateTime();
+    }
+}
+
+class Library {
+    private array $books = [];
+    private array $members = [];
+    private array $loans = [];
+
+    public function addBook(Book $book){
+
+        $this->books[]=$book;
+    }
+
+    public function addMember(Member $member){
+        $this->members[]=$member;
+    }
+
+    public function findBookById(int $id){
+        foreach($this->books as $book){
+            if($book->getId() === $id){
+                return $book;
+            }
+        }
+        return null;
+
+    }
+
+    public function findMemberById(int $id){
+         foreach($this->members as $member){
+            if($member->getId() === $id){
+                return $member;
+            }
+        }
+        return null;
+
+    }
+
+    public function borrowBook(int $bookId, int $memberId){
+        $book=$this->findBookById($bookId);
+        $member=$this->findMemberById($memberId);
+    }
+
+    public function returnBook(int $bookId){
+
+    }
+
+    public function getActiveLoans(){
+
     }
 }
